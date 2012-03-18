@@ -3,3 +3,4 @@ distribute==0.6.24
 psycopg2==2.4.4
 wsgiref==0.1.2
 gunicorn==0.13.4
+python-transparencydata==0.1
