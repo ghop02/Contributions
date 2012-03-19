@@ -200,10 +200,6 @@ class Company(models.Model):
     """
     Direction is positive if searching up, negative if searching down
     """
-    if hasattr(self, 'contributions'):
-      return self.contributions
-    else:
-      return Contributions(
     contributions = set(map(Contribution, td.contributions(organization_ft = self.name)))
     
     if self.parent and direction >= 0:
