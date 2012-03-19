@@ -49,13 +49,8 @@ class CompanyManager(models.Manager):
     
     Not very efficient--lots of redundant API & SQL calls
     """
-    # if not self.q:
-#       self.q = {}
-#     if not self.q[query]:
-#       contributions = td.contributions(organization_ft = query)
-#       self.q[query] = contributions
-#     else:
-#       contributions = self.q[query]
+    
+    # should filter PAC vs company!
     contributions = td.contributions(organization_ft = query)
     seen_names = set()
     seen_names.add('')
@@ -116,7 +111,7 @@ class Contribution(object):
     self.d = d
     self.__hash__ = d['transaction_id'].__hash__
 
-class Positions(object):
+class Position(object):
   """
   """
   def __init__(self, d):
