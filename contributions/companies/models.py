@@ -43,7 +43,9 @@ class CompanyManager(models.Manager):
     """
     Finds companies in the database first and in the TD API second.
     
-    Returns a company and its parents.
+    Returns a company and its parents in a hash, with the name as a key.
+    
+    For a list, use .values(). For only 1 item and to use a specific name, use strict = True.
     
     Not very efficient--lots of redundant API & SQL calls
     """
@@ -93,7 +95,11 @@ class CompanyManager(models.Manager):
     if query == '':
       return all()
     else:
-      return self.from_td(query, strict = strict)
+      cs = self.filter(name__contains = query)
+      if len(cs) > 0:
+        return cs
+      else:
+        return self.from_td(query, strict = strict)
     # c = self
 #     for i in query.split():
 #       c = c.filter(name__contains = query)
@@ -108,26 +114,14 @@ class Contribution(object):
   """
   def __init__(self, d):
     self.d = d
-    self.h = d['transaction_id'].__hash__()
-    
-  def __hash__(self):
-    """
-    This allows this object to be put into a set
-    """
-    return self.h
+    self.__hash__ = d['transaction_id'].__hash__
 
-class Position(object):
+class Positions(object):
   """
   """
   def __init__(self, d):
     self.d = d
-    self.h = d['url'].__hash__()
-    
-  def __hash__(self):
-    """
-    This allows this object to be put into a set
-    """
-    return self.h
+    self.__hash__ = d['url'].__hash__
 
 class Company(models.Model):
   """
@@ -164,7 +158,7 @@ class Company(models.Model):
   >>> c = companies['Nabisco Inc']
   >>> c.parent.name
   u'Kraft Foods'
-  >>> len(c.position_set())
+  >>> len(c.position_set.all())
   2
   """
   name = models.CharField(max_length=255)
@@ -206,6 +200,10 @@ class Company(models.Model):
     """
     Direction is positive if searching up, negative if searching down
     """
+    if hasattr(self, 'contributions'):
+      return self.contributions
+    else:
+      return Contributions(
     contributions = set(map(Contribution, td.contributions(organization_ft = self.name)))
     
     if self.parent and direction >= 0:
